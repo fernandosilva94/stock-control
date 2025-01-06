@@ -7,6 +7,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
 
 import { HttpClientModule } from '@angular/common/http';
 
@@ -27,7 +28,8 @@ import { MessageService } from 'primeng/api';
     CardModule,
     InputTextModule,
     ButtonModule,
-    ToastModule
+    ToastModule,
+    ChartModule
   ],
   providers: [CookieService, MessageService],
   bootstrap: [AppComponent],
