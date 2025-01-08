@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthRequest } from 'src/app/models/interfaces/user/auth/AuthRequest';
 import { SignUpUserRequest } from 'src/app/models/interfaces/user/SignUpUserRequest';
 import { UserService } from 'src/app/services/user/user.service';
@@ -12,7 +13,9 @@ import { UserService } from 'src/app/services/user/user.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy{
+  private destroy$ = new Subject<void>();
+
   loginCard = true;
   
   loginForm = this.formBuilder.group({
@@ -31,7 +34,9 @@ export class HomeComponent {
 
   onSubmitLoginForm(): void {
     if (this.loginForm.value && this.loginForm.valid) {
-      this.userService.authUser(this.loginForm.value as AuthRequest).subscribe({
+      this.userService.authUser(this.loginForm.value as AuthRequest).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
         next: (response) => {
           if (response) {
             this.cookieService.set('USER_INFO', response?.token);
@@ -60,7 +65,9 @@ export class HomeComponent {
 
   onSubmitSignUpForm(): void {
     if (this.signUpForm.value && this.signUpForm.valid) {
-      this.userService.signUpUser(this.signUpForm.value as SignUpUserRequest).subscribe({
+      this.userService.signUpUser(this.signUpForm.value as SignUpUserRequest).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
         next: (response) => {
           if (response) {
             this.signUpForm.reset();
@@ -84,6 +91,11 @@ export class HomeComponent {
           console.log("error: ", err)}
       })
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }
